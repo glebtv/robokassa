@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Robokassa::VERSION
   spec.authors       = ["glebtv"]
   spec.email         = ["glebtv@gmail.com"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
+  spec.description   = %q{Fork of Robokassa gem with only basic payment support}
+  spec.summary       = %q{This gem adds robokassa support to your app.}
   spec.homepage      = ""
   spec.license       = "MIT"
 
