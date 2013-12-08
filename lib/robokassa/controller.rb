@@ -1,6 +1,9 @@
-class Robokassa::Controller < ActionController::Base
-  protect_from_forgery :only => []
-
+module Robokassa::Controller
+  extend ActiveSupport::Concern
+  included do
+    skip_before_action :verify_authenticity_token
+  end
+  
   def notify
     if params[:token] != Robokassa.interface.token
         raise Robokassa::InvalidToken.new

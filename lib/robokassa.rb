@@ -5,9 +5,6 @@ module Robokassa
   class InvalidSignature < ArgumentError; end
   class InvalidToken < ArgumentError; end
 
-  autoload :Interface, 'robokassa/interface.rb'
-  autoload :Controller, 'robokassa/controller.rb'
-
   mattr_accessor :interface
 
   class Engine < Rails::Engine #:nodoc:
@@ -19,3 +16,7 @@ module Robokassa
     config.to_prepare &method(:activate).to_proc
   end
 end
+
+require 'robokassa/controller'
+require 'robokassa/interface'
+require 'robokassa/engine'

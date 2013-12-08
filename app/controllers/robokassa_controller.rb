@@ -1,3 +1,3 @@
-class RobokassaController < Robokassa::Controller
-  
+class RobokassaController < ApplicationController
+  include Robokassa::Controller  
 end

@@ -1,8 +1,5 @@
-Rails.application.routes.draw do
-  controller :robokassa do
-    get "robokassa/notify/:token"   => :notify,  :as => :robokassa_notification
-
-    get "robokassa/success"  => :success, :as => :robokassa_on_success
-    get "robokassa/fail"     => :fail,    :as => :robokassa_on_fail
-  end
+Robokassa::Engine.routes.draw do
+  get "notify/:token" => 'robokassa#notify',  as: :robokassa_notification
+  get "success"       => 'robokassa#success', as: :robokassa_on_success
+  get "fail"          => 'robokassa#fail',    as: :robokassa_on_fail
 end
