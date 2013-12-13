@@ -56,7 +56,6 @@ module Robokassa
 
     def notify_validate_signature(params)
       parsed_params = map_params(params, @@notification_params_map)
-      parsed_params[:custom_options] = Hash[params.select{ |k,v| k.starts_with?('shp') }.sort.map{|k, v| [k[3, k.size], v]}]
       if notify_response_signature(parsed_params) != parsed_params[:signature].downcase
         raise Robokassa::InvalidSignature.new
       end
@@ -75,7 +74,6 @@ module Robokassa
 
     def success_validate_signature(params)
       parsed_params = map_params(params, @@notification_params_map)
-      parsed_params[:custom_options] = Hash[params.select{ |k,v| k.starts_with?('shp') }.sort.map{|k, v| [k[3, k.size], v]}]
       if success_response_signature(parsed_params) != parsed_params[:signature].downcase
         raise Robokassa::InvalidSignature.new
       end
@@ -137,7 +135,9 @@ module Robokassa
 
     # Maps gem parameter names, to robokassa names
     def map_params(params, map)
-      Hash[params.map do|key, value| [(map[key] || map[key.to_sym] || key), value] end]
+      parsed_params = Hash[params.map do|key, value| [(map[key] || map[key.to_sym] || key), value] end]
+      parsed_params[:custom_options] = Hash[params.select{ |k,v| k.respond_to?(:starts_with?) && k.starts_with?('shp') }.sort.map{|k, v| [k[3, k.size].to_sym, v]}]
+      parsed_params
     end
 
     # make hash of options for init_payment_url
