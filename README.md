@@ -78,7 +78,10 @@ To overwrite controller you can do like this:
 
 ```ruby
 # coding: utf-8
-class RobokassaController < Robokassa::Controller
+class RobokassaController < ApplicationController
+  
+  include Robokassa::Controller
+  
   def success
     super
     @payment = Payment.find(params[:InvId])
