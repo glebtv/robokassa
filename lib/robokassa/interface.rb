@@ -135,6 +135,7 @@ module Robokassa
 
     # Maps gem parameter names, to robokassa names
     def map_params(params, map)
+      params = params.permit!.to_hash
       parsed_params = Hash[params.map do|key, value| [(map[key] || map[key.to_sym] || key), value] end]
       parsed_params[:custom_options] = Hash[params.select{ |k,v| k.respond_to?(:starts_with?) && k.starts_with?('shp') }.sort.map{|k, v| [k[3, k.size].to_sym, v]}]
       parsed_params
