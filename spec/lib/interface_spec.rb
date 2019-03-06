@@ -9,7 +9,7 @@ describe "Interface should work correct" do
   it "Should correctly use test server" do
     i = Robokassa::Interface.new :test_mode => true
     i.should be_test_mode
-    i.base_url.should == "http://auth.robokassa.ru"
+    i.base_url.should == "http://auth.robokassa.ru/Merchant"
   end
 
   it "should compute correct signature string" do
