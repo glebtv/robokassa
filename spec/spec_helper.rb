@@ -1,11 +1,12 @@
 require 'rubygems'
 require 'bundler'
-
+require 'combustion'
 require 'rails'
 
 Bundler.require :default, :development
 
-Combustion.initialize! :active_record, :action_controller
+#  :active_record,
+Combustion.initialize! :action_controller
 
 require 'rspec/rails'
 

@@ -128,8 +128,8 @@ module Robokassa
     # === Example
     # <%= link_to "Pay with Robokassa", interface.init_payment_url(order.id, order.amount, "Order #{order.id}", '', 'ru', order.user.email) %>
     #
-    def init_payment_url(invoice_id, amount, description, currency='', language='ru', email='', custom_options={}, isTrue)
-      url_options = init_payment_options(invoice_id, amount, description, custom_options, currency, language, email, isTrue=(test_mode? 1 : 0))
+    def init_payment_url(invoice_id, amount, description, currency='', language='ru', email='', custom_options={})
+      url_options = init_payment_options(invoice_id, amount, description, custom_options, currency, language, email)
       "#{init_payment_base_url}?" + url_options.map do |k, v| "#{CGI::escape(k.to_s)}=#{CGI::escape(v.to_s)}" end.join('&')
     end
 
@@ -152,6 +152,9 @@ module Robokassa
         :email       => email,
         :language    => language
       }.merge(Hash[custom_options.sort.map{|x| ["shp#{x[0]}", x[1]]}])
+      if @options[:test_mode]
+        options[:isTest] = 1
+      end
       map_params(options, @@params_map)
     end
 
