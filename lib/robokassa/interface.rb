@@ -166,9 +166,9 @@ module Robokassa
       "#{@options[:login]}:#{amount}:#{invoice_id}:#{@options[:password1]}#{custom_options_fmt.blank? ? "" : ":" + custom_options_fmt}"
     end
 
-    # returns http://test.robokassa.ru or https://merchant.roboxchange.com in order to current mode
+    # returns http://auth.robokassa.ru or https://merchant.roboxchange.com in order to current mode
     def base_url
-      test_mode? ? 'http://test.robokassa.ru' : 'https://merchant.roboxchange.com'
+      test_mode? ? 'http://auth.robokassa.ru' : 'https://merchant.roboxchange.com'
     end
 
     # returns url to redirect user to payment page
