@@ -10,7 +10,7 @@ module Robokassa::Controller
     if params[:token] != Robokassa.interface.token
         raise Robokassa::InvalidToken.new
     end
-    render :text => Robokassa.interface.notify(params, self)
+    render plain: Robokassa.interface.notify(params, self)
   end
 
   def success
