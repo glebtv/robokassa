@@ -135,6 +135,7 @@ module Robokassa
 
     # Maps gem parameter names, to robokassa names
     def map_params(params, map)
+      params = params.is_a?(Hash) ? params : params.permit!.to_hash
       parsed_params = Hash[params.map do|key, value| [(map[key] || map[key.to_sym] || key), value] end]
       parsed_params[:custom_options] = Hash[params.select{ |k,v| k.respond_to?(:starts_with?) && k.starts_with?('shp') }.sort.map{|k, v| [k[3, k.size].to_sym, v]}]
       parsed_params
@@ -152,6 +153,9 @@ module Robokassa
         :email       => email,
         :language    => language
       }.merge(Hash[custom_options.sort.map{|x| ["shp#{x[0]}", x[1]]}])
+      if @options[:test_mode]
+        options[:isTest] = 1
+      end
       map_params(options, @@params_map)
     end
 
@@ -166,9 +170,9 @@ module Robokassa
       "#{@options[:login]}:#{amount}:#{invoice_id}:#{@options[:password1]}#{custom_options_fmt.blank? ? "" : ":" + custom_options_fmt}"
     end
 
-    # returns http://test.robokassa.ru or https://merchant.roboxchange.com in order to current mode
+    # returns http://auth.robokassa.ru or https://merchant.roboxchange.com in order to current mode
     def base_url
-      test_mode? ? 'http://test.robokassa.ru' : 'https://merchant.roboxchange.com'
+      test_mode? ? 'http://auth.robokassa.ru/Merchant' : 'https://merchant.roboxchange.com'
     end
 
     # returns url to redirect user to payment page

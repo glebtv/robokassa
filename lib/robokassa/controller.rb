@@ -1,14 +1,16 @@
 module Robokassa::Controller
   extend ActiveSupport::Concern
-  included do
-    skip_before_action :verify_authenticity_token
-  end
+  # included do
+  #   if protect_against_forgery?
+  #     skip_before_action :verify_authenticity_token, only: [:notify]
+  #   end
+  # end
 
   def notify
     if params[:token] != Robokassa.interface.token
         raise Robokassa::InvalidToken.new
     end
-    render :text => Robokassa.interface.notify(params, self)
+    render plain: Robokassa.interface.notify(params, self)
   end
 
   def success

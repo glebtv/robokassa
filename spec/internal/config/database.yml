@@ -1,0 +1,9 @@
+test:
+  adapter: postgresql
+  encoding: unicode
+  database: robokassa_test
+  pool: 5
+  host: localhost
+  username: postgres
+  password: 123
+  template: template0
