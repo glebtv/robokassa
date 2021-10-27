@@ -21,6 +21,19 @@ module Robokassa
         'SignatureValue' => :signature
     }.invert
 
+    @@form_params_map = {
+        'MerchantLogin'  => :login,
+        'OutSum'         => :amount,
+        'InvId'          => :invoice_id,
+        'Description'    => :description,
+        'Email'          => :email,
+        'IncCurrLabel'   => :currency,
+        'Culture'        => :language,
+        'SignatureValue' => :signature,
+        'Receipt'        => :receipt,
+        'IsTest'         => :isTest,
+    }.invert
+
     @@service_params_map = {
         'MerchantLogin'  => :login,
         'Language'       => :language,
@@ -129,7 +142,7 @@ module Robokassa
     # <%= link_to "Pay with Robokassa", interface.init_payment_url(order.id, order.amount, "Order #{order.id}", '', 'ru', order.user.email) %>
     #
     def init_payment_url(invoice_id, amount, description, currency='', language='ru', email='', custom_options={})
-      url_options = init_payment_options(invoice_id, amount, description, custom_options, currency, language, email)
+      url_options = init_url_payment_options(invoice_id, amount, description, custom_options, currency, language, email)
       "#{init_payment_base_url}?" + url_options.map do |k, v| "#{CGI::escape(k.to_s)}=#{CGI::escape(v.to_s)}" end.join('&')
     end
 
@@ -139,6 +152,16 @@ module Robokassa
       parsed_params = Hash[params.map do|key, value| [(map[key] || map[key.to_sym] || key), value] end]
       parsed_params[:custom_options] = Hash[params.select{ |k,v| k.respond_to?(:starts_with?) && k.starts_with?('shp') }.sort.map{|k, v| [k[3, k.size].to_sym, v]}]
       parsed_params
+    end
+
+    def init_url_payment_options(invoice_id, amount, description, custom_options = {}, currency='', language='ru', email='')
+      options = init_payment_options(invoice_id, amount, description, custom_options, currency, language, email)
+      map_params(options, @@params_map)
+    end
+
+    def init_form_payment_options(invoice_id, amount, description, custom_options = {}, currency='', language='ru', email='')
+      options = init_payment_options(invoice_id, amount, description, custom_options, currency, language, email)
+      map_params(options, @@form_params_map)
     end
 
     # make hash of options for init_payment_url
@@ -152,11 +175,15 @@ module Robokassa
         :currency    => currency,
         :email       => email,
         :language    => language
-      }.merge(Hash[custom_options.sort.map{|x| ["shp#{x[0]}", x[1]]}])
+      }.merge(
+        Hash[custom_options.except(:receipt).sort.map{|x| ["shp#{x[0]}", x[1]]}]
+      ).merge(
+        {receipt: init_payment_receipt(custom_options[:receipt])}.compact
+      )
       if @options[:test_mode]
         options[:isTest] = 1
       end
-      map_params(options, @@params_map)
+      options
     end
 
     # calculates md5 from result of :init_payment_signature_string
@@ -166,13 +193,27 @@ module Robokassa
 
     # generates signature string to calculate 'SignatureValue' url parameter
     def init_payment_signature_string(invoice_id, amount, description, custom_options={})
-      custom_options_fmt = custom_options.sort.map{|x|"shp#{x[0]}=#{x[1]}"}.join(":")
-      "#{@options[:login]}:#{amount}:#{invoice_id}:#{@options[:password1]}#{custom_options_fmt.blank? ? "" : ":" + custom_options_fmt}"
+      custom_options_fmt = custom_options.except(:receipt).sort.map{|x|"shp#{x[0]}=#{x[1]}"}.join(":")
+      [
+        @options[:login],
+        amount,
+        invoice_id,
+        init_payment_receipt(custom_options[:receipt]),
+        @options[:password1],
+        custom_options_fmt.presence,
+      ].compact.join(':')
+    end
+
+    def init_payment_receipt(receipt)
+      return nil if receipt.blank?
+      receipt = receipt.to_json if receipt.is_a?(Hash)
+
+      CGI.escape(receipt)
     end
 
     # returns http://auth.robokassa.ru or https://merchant.roboxchange.com in order to current mode
     def base_url
-      test_mode? ? 'http://auth.robokassa.ru/Merchant' : 'https://merchant.roboxchange.com'
+      test_mode? ? 'https://auth.robokassa.ru/Merchant' : 'https://merchant.roboxchange.com'
     end
 
     # returns url to redirect user to payment page

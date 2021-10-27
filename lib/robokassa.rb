@@ -20,3 +20,8 @@ end
 require 'robokassa/controller'
 require 'robokassa/interface'
 require 'robokassa/engine'
+
+ActiveSupport.on_load :action_view do
+  require 'robokassa/helpers'
+  ::ActionView::Base.send :include, Robokassa::Helpers
+end
